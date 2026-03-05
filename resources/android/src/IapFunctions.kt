@@ -202,6 +202,13 @@ object IapFunctions {
         }
     }
 
+    class InitTransactionObserver(private val activity: FragmentActivity) : BridgeFunction {
+        override fun execute(parameters: Map<String, Any>): Map<String, Any> {
+            Log.d(TAG, "InitTransactionObserver called (no-op on Android)")
+            return emptyMap()
+        }
+    }
+
     // --- Helpers ---
 
     private fun productDetailsToJson(details: ProductDetails, manager: IapBillingManager): JSONObject {

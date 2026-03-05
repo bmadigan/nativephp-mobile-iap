@@ -254,6 +254,17 @@ enum IapFunctions {
         }
     }
 
+    // MARK: - Iap.InitTransactionObserver
+
+    class InitTransactionObserver: BridgeFunction {
+        func execute(parameters: [String: Any]) throws -> [String: Any] {
+            print("💰 Iap.InitTransactionObserver called")
+            IapTransactionObserver.shared.start()
+            print("✅ Transaction observer started")
+            return [:]
+        }
+    }
+
     // MARK: - Helper Methods
 
     private static func checkVerification<T>(_ result: VerificationResult<T>) throws -> T {
