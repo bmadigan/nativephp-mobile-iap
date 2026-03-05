@@ -137,11 +137,11 @@ vendor/bin/pest
 
 ## Supported Product Types
 
-| Type | Enum | Description |
-|------|------|-------------|
-| Consumable | `consumable` | Can be purchased multiple times |
-| Non-Consumable | `non_consumable` | One-time permanent purchase |
-| Subscription | `subscription` | Recurring auto-renewable |
+| Type           | Enum             | Description                       |
+| -------------- | ---------------- | --------------------------------- |
+| Consumable     | `consumable`     | Can be purchased multiple times   |
+| Non-Consumable | `non_consumable` | One-time permanent purchase       |
+| Subscription   | `subscription`   | Recurring auto-renewable          |
 
 ## Requirements
 

@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - IAP manager with driver pattern (Native, Null, Fake)
 - Product, Purchase, and Entitlement DTOs with dual-case `fromArray()`
 - Fluent builders: `PendingProducts`, `PendingPurchase`, `PendingRestore`
