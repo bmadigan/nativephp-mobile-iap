@@ -1,0 +1,54 @@
+{
+    "name": "bmadigan/nativephp-mobile-iap",
+    "type": "nativephp-plugin",
+    "description": "In-App Purchase plugin for NativePHP Mobile — StoreKit 2 (iOS) & Google Play Billing (Android)",
+    "keywords": [
+        "nativephp",
+        "iap",
+        "in-app-purchases",
+        "storekit",
+        "play-billing",
+        "mobile"
+    ],
+    "license": "proprietary",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0",
+        "spatie/laravel-package-tools": "^1.16"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0|^10.0",
+        "pestphp/pest": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Native\\Mobile\\Iap\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Native\\Mobile\\Iap\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Native\\Mobile\\Iap\\IapServiceProvider"
+            ],
+            "aliases": {
+                "Iap": "Native\\Mobile\\Iap\\Facades\\Iap"
+            }
+        },
+        "nativephp": {
+            "manifest": "nativephp.json"
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

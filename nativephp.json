@@ -1,0 +1,75 @@
+{
+    "namespace": "Iap",
+    "bridge_functions": [
+        {
+            "name": "Iap.CanMakePayments",
+            "ios": "IapFunctions.CanMakePayments",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.CanMakePayments",
+            "description": "Check if the device supports in-app purchases"
+        },
+        {
+            "name": "Iap.RegisterProducts",
+            "ios": "IapFunctions.RegisterProducts",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.RegisterProducts",
+            "description": "Register product configurations from PHP"
+        },
+        {
+            "name": "Iap.GetProducts",
+            "ios": "IapFunctions.GetProducts",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.GetProducts",
+            "description": "Load product details from the store"
+        },
+        {
+            "name": "Iap.Purchase",
+            "ios": "IapFunctions.Purchase",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.Purchase",
+            "description": "Initiate a purchase flow"
+        },
+        {
+            "name": "Iap.Restore",
+            "ios": "IapFunctions.Restore",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.Restore",
+            "description": "Restore previous purchases"
+        },
+        {
+            "name": "Iap.GetEntitlements",
+            "ios": "IapFunctions.GetEntitlements",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.GetEntitlements",
+            "description": "Get current active entitlements"
+        },
+        {
+            "name": "Iap.InitTransactionObserver",
+            "ios": "IapFunctions.InitTransactionObserver",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.InitTransactionObserver",
+            "description": "Start background transaction observer"
+        }
+    ],
+    "events": [
+        "Native\\Mobile\\Iap\\Events\\ProductsLoaded",
+        "Native\\Mobile\\Iap\\Events\\PurchaseCompleted",
+        "Native\\Mobile\\Iap\\Events\\PurchaseFailed",
+        "Native\\Mobile\\Iap\\Events\\PurchaseCancelled",
+        "Native\\Mobile\\Iap\\Events\\PurchasePending",
+        "Native\\Mobile\\Iap\\Events\\RestoreCompleted",
+        "Native\\Mobile\\Iap\\Events\\EntitlementsUpdated"
+    ],
+    "android": {
+        "permissions": [
+            "com.android.vending.BILLING"
+        ],
+        "dependencies": {
+            "implementation": [
+                "com.android.billingclient:billing-ktx:7.1.1"
+            ]
+        }
+    },
+    "ios": {
+        "init_function": "Iap.InitTransactionObserver",
+        "entitlements": {
+            "com.apple.developer.in-app-payments": true
+        },
+        "capabilities": [
+            "In-App Purchase"
+        ]
+    }
+}
