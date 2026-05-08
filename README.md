@@ -1,6 +1,6 @@
-# NativePHP Mobile IAP
+# NativePHP IAP
 
-In-App Purchase plugin for [NativePHP Mobile](https://nativephp.com) — StoreKit 2 (iOS) & Google Play Billing 7.x (Android).
+In-app purchases for [NativePHP mobile](https://nativephp.com) apps — one Laravel-style API for iOS StoreKit and Google Play Billing.
 
 ## Installation
 
@@ -80,8 +80,19 @@ Event::listen(PurchaseCompleted::class, function ($event) {
     $event->purchase;        // Purchase DTO
     $event->signedPayload;   // JWS token for server verification
     $event->isSandbox;
+
+    // Recommended: verify the purchase on your backend, grant the entitlement
+    // durably, then mark the transaction as fulfilled with the store.
+    Iap::complete($event->purchase);
 });
 ```
+
+Do not unlock paid features from client state alone. Treat `PurchaseCompleted` as
+"store purchase completed, ready for verification". Verify iOS
+`signedPayload` with App Store Server APIs or Apple's App Store Server Library.
+Verify Android `purchaseToken` with the Google Play Developer API. Only call
+`Iap::complete()` after your app has durably granted the entitlement or delivered
+the consumable content.
 
 ### Restore Purchases
 
@@ -142,6 +153,10 @@ vendor/bin/pest
 | Consumable     | `consumable`     | Can be purchased multiple times   |
 | Non-Consumable | `non_consumable` | One-time permanent purchase       |
 | Subscription   | `subscription`   | Recurring auto-renewable          |
+
+`Iap::complete()` consumes Android consumables and acknowledges Android
+non-consumables/subscriptions. On iOS it finishes the matching StoreKit
+transaction.
 
 ## Requirements
 

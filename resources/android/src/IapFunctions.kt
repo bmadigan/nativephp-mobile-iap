@@ -96,18 +96,24 @@ object IapFunctions {
                         BillingClient.BillingResponseCode.OK -> {
                             val purchase = purchases?.firstOrNull { productId in it.products }
                             if (purchase != null) {
-                                if (purchase.purchaseState == com.android.billingclient.api.Purchase.PurchaseState.PURCHASED
-                                    && !purchase.isAcknowledged) {
-                                    manager.acknowledgePurchase(purchase.purchaseToken)
+                                if (purchase.purchaseState == com.android.billingclient.api.Purchase.PurchaseState.PENDING) {
+                                    val pendingEvent = "Native\\Mobile\\Iap\\Events\\PurchasePending"
+                                    val payload = JSONObject().apply {
+                                        put("productId", productId)
+                                        put("transactionId", purchase.orderId ?: "")
+                                        if (id != null) put("id", id)
+                                    }
+                                    NativeActionCoordinator.dispatchEvent(activity, pendingEvent, payload.toString())
+                                } else {
+                                    val payload = JSONObject().apply {
+                                        put("productId", productId)
+                                        put("purchase", purchaseToJson(purchase, productId))
+                                        put("isSandbox", false)
+                                        put("signedPayload", purchase.originalJson)
+                                        if (id != null) put("id", id)
+                                    }
+                                    NativeActionCoordinator.dispatchEvent(activity, eventClass, payload.toString())
                                 }
-                                val payload = JSONObject().apply {
-                                    put("productId", productId)
-                                    put("purchase", purchaseToJson(purchase, productId))
-                                    put("isSandbox", false)
-                                    put("signedPayload", purchase.originalJson)
-                                    if (id != null) put("id", id)
-                                }
-                                NativeActionCoordinator.dispatchEvent(activity, eventClass, payload.toString())
                             }
                         }
                         BillingClient.BillingResponseCode.USER_CANCELED -> {
@@ -144,6 +150,40 @@ object IapFunctions {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    class CompleteTransaction(private val activity: FragmentActivity) : BridgeFunction {
+        @Suppress("UNCHECKED_CAST")
+        override fun execute(parameters: Map<String, Any>): Map<String, Any> {
+            val purchase = parameters["purchase"] as? Map<String, Any>
+                ?: throw BridgeError.InvalidParameters("purchase dictionary is required")
+            val productId = purchase["productId"] as? String
+                ?: throw BridgeError.InvalidParameters("purchase.productId is required")
+            val purchaseToken = purchase["purchaseToken"] as? String
+                ?: throw BridgeError.InvalidParameters("purchase.purchaseToken is required")
+            val productType = parameters["type"] as? String
+
+            val manager = IapBillingManager.getInstance(activity)
+            var success = false
+            var code = "unknown_error"
+            var message = "Transaction completion failed"
+            val latch = java.util.concurrent.CountDownLatch(1)
+
+            manager.completePurchase(productId, productType, purchaseToken) { billingResult ->
+                success = billingResult.responseCode == BillingClient.BillingResponseCode.OK
+                code = billingResponseCodeToString(billingResult.responseCode)
+                message = billingResult.debugMessage ?: message
+                latch.countDown()
+            }
+
+            latch.await(5, java.util.concurrent.TimeUnit.SECONDS)
+
+            return if (success) {
+                mapOf("status" to "success")
+            } else {
+                mapOf("status" to "failed", "code" to code, "message" to message)
             }
         }
     }
@@ -269,6 +309,9 @@ object IapFunctions {
             put("expiresAt", JSONObject.NULL)
             put("isSandbox", false)
             put("signedPayload", purchase.originalJson)
+            put("purchaseToken", purchase.purchaseToken)
+            put("signature", purchase.signature)
+            put("quantity", purchase.quantity)
         }
     }
 

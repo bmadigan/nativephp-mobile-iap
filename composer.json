@@ -1,7 +1,7 @@
 {
     "name": "bmadigan/nativephp-mobile-iap",
     "type": "nativephp-plugin",
-    "description": "In-App Purchase plugin for NativePHP Mobile — StoreKit 2 (iOS) & Google Play Billing (Android)",
+    "description": "In-app purchases for NativePHP mobile apps — one Laravel-style API for iOS StoreKit and Google Play Billing.",
     "keywords": [
         "nativephp",
         "iap",

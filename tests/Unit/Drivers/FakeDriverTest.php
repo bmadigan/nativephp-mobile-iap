@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Event;
 use Native\Mobile\Iap\Drivers\FakeDriver;
+use Native\Mobile\Iap\DTOs\Purchase;
 use Native\Mobile\Iap\Enums\ProductType;
+use Native\Mobile\Iap\Enums\PurchaseState;
 use Native\Mobile\Iap\Events\ProductsLoaded;
 use Native\Mobile\Iap\Events\PurchaseCancelled;
 use Native\Mobile\Iap\Events\PurchaseCompleted;
@@ -75,6 +77,11 @@ describe('FakeDriver', function () {
             $this->driver->purchase('test_product')->start();
             Event::assertDispatched(PurchaseCompleted::class);
             Event::assertNotDispatched(PurchaseFailed::class);
+        });
+        it('can complete a verified purchase', function () {
+            $purchase = new Purchase('test_product', 'txn', 'orig', PurchaseState::Completed, now());
+            expect($this->driver->complete($purchase))->toBeTrue();
+            $this->driver->assertCompleted('test_product');
         });
     });
 

@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Iap::complete()` API to explicitly finish, acknowledge, or consume a verified purchase after entitlement delivery.
+- Android purchase DTO payload fields for `purchaseToken`, `signature`, and `quantity` to support backend verification.
+- JavaScript `completeTransaction()` bridge helper.
+
+### Changed
+
+- iOS no longer finishes StoreKit transactions before dispatching purchase events.
+- Android no longer acknowledges purchases before dispatching purchase events.
+- Android pending purchases now dispatch `PurchasePending` instead of `PurchaseCompleted`.
+- Android consumables are consumed during `Iap::complete()` so they can be purchased repeatedly.
+- Removed the incorrect Apple Pay merchant entitlement from the iOS manifest metadata.
+- README now documents a verification-first purchase flow for App Store Server APIs and Google Play Developer APIs.
+
 ## [1.0.0] - 2026-03-05
 
 ### Added

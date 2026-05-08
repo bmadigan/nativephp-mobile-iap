@@ -4,6 +4,7 @@ namespace Native\Mobile\Iap;
 
 use Illuminate\Support\Collection;
 use Native\Mobile\Iap\Contracts\IapDriver;
+use Native\Mobile\Iap\DTOs\Purchase;
 use Native\Mobile\Iap\Drivers\FakeDriver;
 use Native\Mobile\Iap\Drivers\NativeDriver;
 use Native\Mobile\Iap\Drivers\NullDriver;
@@ -33,6 +34,11 @@ class Iap implements IapDriver
     public function purchase(string $productId): PendingPurchase
     {
         return $this->resolveDriver()->purchase($productId);
+    }
+
+    public function complete(Purchase $purchase): bool
+    {
+        return $this->resolveDriver()->complete($purchase);
     }
 
     public function restore(): PendingRestore

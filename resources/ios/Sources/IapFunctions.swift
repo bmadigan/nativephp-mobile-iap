@@ -11,6 +11,9 @@ enum IapFunctions {
     /// Cached StoreKit Product objects for purchase flow
     private static var cachedProducts: [String: Product] = [:]
 
+    /// Verified transactions awaiting durable entitlement grant by PHP/backend
+    fileprivate static var pendingTransactions: [String: Transaction] = [:]
+
     // MARK: - Iap.CanMakePayments
 
     class CanMakePayments: BridgeFunction {
@@ -132,7 +135,7 @@ enum IapFunctions {
                         switch result {
                         case .success(let verification):
                             let transaction = try IapFunctions.checkVerification(verification)
-                            await transaction.finish()
+                            IapFunctions.pendingTransactions[String(transaction.id)] = transaction
                             let purchaseDict = IapFunctions.transactionToDict(
                                 transaction, productId: productId)
                             let isSandbox = transaction.environment == .sandbox
@@ -180,6 +183,47 @@ enum IapFunctions {
                     }
                 }
             }
+            return ["status": "success"]
+        }
+    }
+
+    // MARK: - Iap.CompleteTransaction
+
+    class CompleteTransaction: BridgeFunction {
+        func execute(parameters: [String: Any]) throws -> [String: Any] {
+            guard let purchase = parameters["purchase"] as? [String: Any] else {
+                throw BridgeError.invalidParameters("purchase dictionary is required")
+            }
+            guard let transactionId = purchase["transactionId"] as? String else {
+                throw BridgeError.invalidParameters("purchase.transactionId is required")
+            }
+
+            guard let transaction = IapFunctions.pendingTransactions[transactionId] else {
+                return [
+                    "status": "failed",
+                    "code": "transaction_not_found",
+                    "message": "Transaction is not pending completion"
+                ]
+            }
+
+            let semaphore = DispatchSemaphore(value: 0)
+
+            Task {
+                await transaction.finish()
+                IapFunctions.pendingTransactions.removeValue(forKey: transactionId)
+                semaphore.signal()
+            }
+
+            let result = semaphore.wait(timeout: .now() + 5)
+
+            if result == .timedOut {
+                return [
+                    "status": "failed",
+                    "code": "timeout",
+                    "message": "Timed out while finishing transaction"
+                ]
+            }
+
             return ["status": "success"]
         }
     }
@@ -305,7 +349,7 @@ enum IapFunctions {
         ]
     }
 
-    private static func transactionToDict(_ transaction: Transaction, productId: String) -> [String: Any] {
+    fileprivate static func transactionToDict(_ transaction: Transaction, productId: String) -> [String: Any] {
         let dateFormatter = ISO8601DateFormatter()
         var dict: [String: Any] = [
             "productId": productId,
@@ -347,8 +391,21 @@ class IapTransactionObserver {
             for await verification in Transaction.updates {
                 do {
                     let transaction = try checkVerification(verification)
-                    await transaction.finish()
+                    IapFunctions.pendingTransactions[String(transaction.id)] = transaction
                     print("💰 Transaction update received for: \(transaction.productID)")
+
+                    let purchaseDict = IapFunctions.transactionToDict(
+                        transaction, productId: transaction.productID)
+                    let purchaseEvent = "Native\\Mobile\\Iap\\Events\\PurchaseCompleted"
+                    let purchasePayload: [String: Any] = [
+                        "productId": transaction.productID,
+                        "purchase": purchaseDict,
+                        "isSandbox": transaction.environment == .sandbox,
+                        "signedPayload": verification.jwsRepresentation
+                    ]
+                    DispatchQueue.main.async {
+                        LaravelBridge.shared.send?(purchaseEvent, purchasePayload)
+                    }
 
                     var entitlements: [[String: Any]] = []
                     for await entVerification in Transaction.currentEntitlements {

@@ -42,6 +42,9 @@ class FakeDriver implements IapDriver
     /** @var array<int, string> */
     protected array $purchasedProducts = [];
 
+    /** @var array<int, string> */
+    protected array $completedProducts = [];
+
     /** @var array<int, array<int, string>> */
     protected array $loadedProducts = [];
 
@@ -240,6 +243,13 @@ class FakeDriver implements IapDriver
         };
     }
 
+    public function complete(Purchase $purchase): bool
+    {
+        $this->completedProducts[] = $purchase->productId;
+
+        return true;
+    }
+
     public function entitlements(): Collection
     {
         return collect($this->mockEntitlements)->filter(fn (Entitlement $e) => $e->isActive)->values();
@@ -346,6 +356,17 @@ class FakeDriver implements IapDriver
         Assert::assertEmpty(
             $this->purchasedProducts,
             'Expected no products to have been purchased, but '.count($this->purchasedProducts).' were.'
+        );
+
+        return $this;
+    }
+
+    public function assertCompleted(string $productId): self
+    {
+        Assert::assertContains(
+            $productId,
+            $this->completedProducts,
+            "Expected product [{$productId}] to have been completed."
         );
 
         return $this;

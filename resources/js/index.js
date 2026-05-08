@@ -25,6 +25,10 @@ export async function purchase(productId, options = {}) {
     return bridgeCall('Iap.Purchase', { productId, ...options });
 }
 
+export async function completeTransaction(purchase, options = {}) {
+    return bridgeCall('Iap.CompleteTransaction', { purchase, ...options });
+}
+
 export async function restore(options = {}) {
     return bridgeCall('Iap.Restore', options);
 }

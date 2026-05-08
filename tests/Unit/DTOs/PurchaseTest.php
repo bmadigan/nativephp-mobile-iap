@@ -10,9 +10,14 @@ describe('Purchase DTO', function () {
             'productId' => 'test', 'transactionId' => 'txn_123',
             'originalTransactionId' => 'orig_123', 'state' => 'completed',
             'purchaseDate' => now()->toIso8601String(), 'isSandbox' => true,
-            'signedPayload' => 'jwt_token',
+            'signedPayload' => 'jwt_token', 'purchaseToken' => 'play_token',
+            'signature' => 'play_signature', 'quantity' => 2,
         ]);
-        expect($purchase->state)->toBe(PurchaseState::Completed)->and($purchase->isSandbox)->toBeTrue();
+        expect($purchase->state)->toBe(PurchaseState::Completed)
+            ->and($purchase->isSandbox)->toBeTrue()
+            ->and($purchase->purchaseToken)->toBe('play_token')
+            ->and($purchase->signature)->toBe('play_signature')
+            ->and($purchase->quantity)->toBe(2);
     });
     it('is active for completed purchase without expiry', function () {
         $purchase = new Purchase('lifetime', 'txn', 'orig', PurchaseState::Completed, now());
