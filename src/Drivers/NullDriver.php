@@ -4,6 +4,7 @@ namespace Native\Mobile\Iap\Drivers;
 
 use Illuminate\Support\Collection;
 use Native\Mobile\Iap\Contracts\IapDriver;
+use Native\Mobile\Iap\DTOs\Purchase;
 use Native\Mobile\Iap\Pending\PendingProducts;
 use Native\Mobile\Iap\Pending\PendingPurchase;
 use Native\Mobile\Iap\Pending\PendingRestore;
@@ -25,6 +26,11 @@ class NullDriver implements IapDriver
     public function purchase(string $productId): PendingPurchase
     {
         return new PendingPurchase($productId, isNative: false);
+    }
+
+    public function complete(Purchase $purchase): bool
+    {
+        return false;
     }
 
     public function restore(): PendingRestore

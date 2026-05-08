@@ -5,6 +5,7 @@ namespace Native\Mobile\Iap\Drivers;
 use Illuminate\Support\Collection;
 use Native\Mobile\Iap\Contracts\IapDriver;
 use Native\Mobile\Iap\DTOs\Entitlement;
+use Native\Mobile\Iap\DTOs\Purchase;
 use Native\Mobile\Iap\Pending\PendingProducts;
 use Native\Mobile\Iap\Pending\PendingPurchase;
 use Native\Mobile\Iap\Pending\PendingRestore;
@@ -38,6 +39,29 @@ class NativeDriver implements IapDriver
     public function purchase(string $productId): PendingPurchase
     {
         return new PendingPurchase($productId, isNative: true);
+    }
+
+    public function complete(Purchase $purchase): bool
+    {
+        if (! function_exists('nativephp_call')) {
+            return false;
+        }
+
+        $productConfig = $this->registeredProducts[$purchase->productId] ?? [];
+        $payload = [
+            'purchase' => $purchase->toArray(),
+            'type' => $productConfig['type'] ?? null,
+        ];
+
+        $result = nativephp_call('Iap.CompleteTransaction', json_encode($payload));
+
+        if (! $result) {
+            return false;
+        }
+
+        $decoded = json_decode($result, true);
+
+        return isset($decoded['status']) && $decoded['status'] === 'success';
     }
 
     public function restore(): PendingRestore

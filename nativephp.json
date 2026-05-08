@@ -26,6 +26,12 @@
             "description": "Initiate a purchase flow"
         },
         {
+            "name": "Iap.CompleteTransaction",
+            "ios": "IapFunctions.CompleteTransaction",
+            "android": "com.bmadigan.plugins.iap.IapFunctions.CompleteTransaction",
+            "description": "Mark a verified purchase as fulfilled with the store"
+        },
+        {
             "name": "Iap.Restore",
             "ios": "IapFunctions.Restore",
             "android": "com.bmadigan.plugins.iap.IapFunctions.Restore",
@@ -65,9 +71,6 @@
     },
     "ios": {
         "init_function": "Iap.InitTransactionObserver",
-        "entitlements": {
-            "com.apple.developer.in-app-payments": true
-        },
         "capabilities": [
             "In-App Purchase"
         ]

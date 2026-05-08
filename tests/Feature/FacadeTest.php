@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Event;
 use Native\Mobile\Iap\Drivers\FakeDriver;
 use Native\Mobile\Iap\Drivers\NullDriver;
+use Native\Mobile\Iap\DTOs\Purchase;
+use Native\Mobile\Iap\Enums\PurchaseState;
 use Native\Mobile\Iap\Events\PurchaseCompleted;
 use Native\Mobile\Iap\Facades\Iap;
 
@@ -63,6 +65,12 @@ describe('Iap Facade', function () {
                 return $event->productId === 'test_product';
             });
             Iap::getFakeDriver()->assertPurchased('test_product');
+        });
+
+        it('can complete purchase via facade', function () {
+            $purchase = new Purchase('test_product', 'txn', 'orig', PurchaseState::Completed, now());
+            expect(Iap::complete($purchase))->toBeTrue();
+            Iap::getFakeDriver()->assertCompleted('test_product');
         });
 
         it('can configure and use entitlements', function () {

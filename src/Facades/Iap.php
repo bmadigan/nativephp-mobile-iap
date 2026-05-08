@@ -5,6 +5,7 @@ namespace Native\Mobile\Iap\Facades;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Facade;
 use Native\Mobile\Iap\Contracts\IapDriver;
+use Native\Mobile\Iap\DTOs\Purchase;
 use Native\Mobile\Iap\Drivers\FakeDriver;
 use Native\Mobile\Iap\Pending\PendingProducts;
 use Native\Mobile\Iap\Pending\PendingPurchase;
@@ -14,6 +15,7 @@ use Native\Mobile\Iap\Pending\PendingRestore;
  * @method static bool canMakePayments()
  * @method static PendingProducts products(array $productIds)
  * @method static PendingPurchase purchase(string $productId)
+ * @method static bool complete(Purchase $purchase)
  * @method static PendingRestore restore()
  * @method static Collection entitlements()
  * @method static bool hasEntitlement(string $productId)

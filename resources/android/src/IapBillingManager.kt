@@ -157,6 +157,34 @@ class IapBillingManager private constructor(private val context: Context) : Purc
         }
     }
 
+    fun completePurchase(
+        productId: String,
+        productType: String?,
+        purchaseToken: String,
+        onResult: (BillingResult) -> Unit
+    ) {
+        ensureConnected { ready ->
+            if (!ready) {
+                onResult(
+                    BillingResult.newBuilder()
+                        .setResponseCode(BillingClient.BillingResponseCode.SERVICE_UNAVAILABLE)
+                        .setDebugMessage("Billing service not available")
+                        .build()
+                )
+                return@ensureConnected
+            }
+
+            val registeredType = registeredProducts[productId]?.get("type") as? String
+            if ((productType ?: registeredType) == "consumable") {
+                val params = ConsumeParams.newBuilder().setPurchaseToken(purchaseToken).build()
+                billingClient?.consumeAsync(params) { billingResult, _ -> onResult(billingResult) }
+            } else {
+                val params = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(purchaseToken).build()
+                billingClient?.acknowledgePurchase(params) { billingResult -> onResult(billingResult) }
+            }
+        }
+    }
+
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
         pendingPurchaseCallback?.invoke(billingResult, purchases)
         pendingPurchaseCallback = null

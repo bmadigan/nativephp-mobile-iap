@@ -16,6 +16,9 @@ readonly class Purchase
         public ?Carbon $expiresAt = null,
         public bool $isSandbox = false,
         public ?string $signedPayload = null,
+        public ?string $purchaseToken = null,
+        public ?string $signature = null,
+        public ?int $quantity = null,
     ) {}
 
     public function isActive(): bool
@@ -59,6 +62,9 @@ readonly class Purchase
             expiresAt: $expiresAt !== null ? ($expiresAt instanceof Carbon ? $expiresAt : Carbon::parse($expiresAt)) : null,
             isSandbox: (bool) ($data['isSandbox'] ?? $data['is_sandbox'] ?? false),
             signedPayload: $data['signedPayload'] ?? $data['signed_payload'] ?? null,
+            purchaseToken: $data['purchaseToken'] ?? $data['purchase_token'] ?? null,
+            signature: $data['signature'] ?? null,
+            quantity: isset($data['quantity']) ? (int) $data['quantity'] : null,
         );
     }
 
@@ -76,6 +82,9 @@ readonly class Purchase
             'expiresAt' => $this->expiresAt?->toIso8601String(),
             'isSandbox' => $this->isSandbox,
             'signedPayload' => $this->signedPayload,
+            'purchaseToken' => $this->purchaseToken,
+            'signature' => $this->signature,
+            'quantity' => $this->quantity,
         ];
     }
 }

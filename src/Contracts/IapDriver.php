@@ -3,6 +3,7 @@
 namespace Native\Mobile\Iap\Contracts;
 
 use Illuminate\Support\Collection;
+use Native\Mobile\Iap\DTOs\Purchase;
 use Native\Mobile\Iap\Pending\PendingProducts;
 use Native\Mobile\Iap\Pending\PendingPurchase;
 use Native\Mobile\Iap\Pending\PendingRestore;
@@ -17,6 +18,8 @@ interface IapDriver
     public function products(array $productIds): PendingProducts;
 
     public function purchase(string $productId): PendingPurchase;
+
+    public function complete(Purchase $purchase): bool;
 
     public function restore(): PendingRestore;
 
